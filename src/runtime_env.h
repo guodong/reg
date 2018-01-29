@@ -23,15 +23,17 @@ class RuntimeEnv {
   std::string mount_dir() { return envroot_ + "/mount"; }
   std::string src_dir() { return envroot_ + "/src"; }
   
-  void set_id(const std::string id) {id_ = id;}
-  void set_lower_dir(const std::string dir) {lower_dir_ = dir;}
-  void set_upper_dir(const std::string dir) {upper_dir_ = dir;}
-  void set_work_dir(const std::string dir) {work_dir_ = dir;}
-  void set_mount_dir(const std::string dir) {mount_dir_ = dir;}
-  void set_src_dir(const std::string dir) {src_dir_ = dir;}
+  void set_id(const std::string id) { id_ = id; }
+  void set_lower_dir(const std::string dir) { lower_dir_ = dir; }
+  void set_upper_dir(const std::string dir) { upper_dir_ = dir; }
+  void set_work_dir(const std::string dir) { work_dir_ = dir; }
+  void set_mount_dir(const std::string dir) { mount_dir_ = dir; }
+  void set_src_dir(const std::string dir) { src_dir_ = dir; }
 
-  std::string cmd() {return cmd_;}
-  void set_cmd(std::string cmd) {cmd_ = cmd;}
+  std::vector<std::string> cmds() {return cmds_;}
+  void set_cmds(std::vector<std::string> cmds) {cmds_ = cmds;}
+
+  void set_parallel(int flag) { parallel_ = flag; }
 
 
  private:
@@ -49,6 +51,8 @@ class RuntimeEnv {
   char child_stack_[8192];
 
   std::string cmd_;
+  std::vector<std::string> cmds_;
+  int parallel_;
 
 };
 }

@@ -12,7 +12,7 @@
 namespace reg {
 
 RuntimeEnv::RuntimeEnv() {
-  envroot_ = ".reg";
+  envroot_ = ".env";
 }
 
 int RuntimeEnv::InstallBin(const std::string name, const std::string version) {
@@ -64,63 +64,57 @@ int RuntimeEnv::InstallBin(const std::string name, const std::string version) {
 
 int RuntimeEnv::Child(void *data) {
   RuntimeEnv *re = (RuntimeEnv*)data;
+  int result;
 
-  mount("proc", "/proc", "proc", 0, NULL);
-  mount("none", "/dev", "tmpfs", MS_NOEXEC | MS_STRICTATIME, NULL);
 
-  mkdir((re->mount_dir() + "/pivot").c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  int result = syscall(SYS_pivot_root, re->mount_dir().c_str(), (re->mount_dir() + "/pivot").c_str());
+  //mount("proc", "/proc", "proc", 0, NULL);
+  //mount("none", "/dev", "tmpfs", MS_NOEXEC | MS_STRICTATIME, NULL);
+
+  //mkdir((re->mount_dir() + "/pivot").c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  result = syscall(SYS_unshare, CLONE_NEWNS);
   if (result != 0) {
-    std::cout << "pivot error " << result << std::endl;
+    std::cout << "unshare error " << strerror(errno) << std::endl;
     return -1;
   }
 
-  result = umount2("/pivot", MNT_DETACH);
-  rmdir("/pivot");
-
-  chdir("/src");
-
-  /**
-   * parse cmd line
-   **/
-  int argnum = 1, i = 0;
-  for (i; re->cmd().c_str()[i] != '\0'; i++) {
-    if (re->cmd().c_str()[i] == ' ')
-      argnum++;
+  result = chroot(re->mount_dir().c_str());
+  //result = syscall(SYS_pivot_root, re->mount_dir().c_str(), (re->mount_dir() + "/pivot").c_str());
+  if (result != 0) {
+    std::cout << "pivot error " << strerror(errno) << std::endl;
+    return -1;
   }
 
-  char split[] = " ";
-        
-  char arglist[argnum + 1][128];
+  
 
-  char *substr = strtok((char*)(re->cmd().c_str()), split);
-  i = 0;
-  while (substr != NULL) {
-    strcpy(arglist[i], substr);
-    i++;
-    substr = strtok(NULL, split);
+  //result = umount2("/pivot", MNT_DETACH);
+  
+  //rmdir("/pivot");
+
+  chdir("/");
+  for (int i = 0; i < re->cmds().size(); ++i) {
+    
+    std::string cmd = re->cmds().at(i);
+  
+    char *arg[2];
+    arg[0] = (char*)(cmd.c_str());
+    arg[1] = NULL;
+
+    execvp(arg[0], arg);
   }
-  if (strcmp(arglist[0], "bash") == 0) {
-    execlp("/bin/bash", "bash", NULL);
-    return 0;
-  }
-  arglist[argnum][0] = 0;
-  char *al[] = {arglist[0], arglist[1], 0};
-  execvp(al[0], (char* const*)al);
   
   return 0;
 }
 
 int RuntimeEnv::Start() {
   std::string args = "lowerdir=" + lower_dir() + ",upperdir=" + upper_dir() + ",workdir=" + work_dir();
-
+  
   int result = mount(NULL, mount_dir().c_str(), "overlay", 0, args.c_str());
   if (result != 0) {
     std::cout << "mount error." << std::endl;
     return -1;
   }
   mkdir((mount_dir() + "/src").c_str(), 0755);
-  mount(src_dir().c_str(), (mount_dir() + "/src").c_str(), "bind", MS_BIND, NULL);
+  mount("./", (mount_dir() + "/src").c_str(), "bind", MS_BIND, NULL);
   child_pid_ = clone(Child, child_stack_ + 8192, CLONE_NEWPID | CLONE_NEWNS | CLONE_NEWIPC | SIGCHLD, this);
   waitpid(child_pid_, NULL, 0);
   return 0;

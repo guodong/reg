@@ -31,6 +31,12 @@ std::vector<std::string> Split(const std::string &s, char delim) {
     return elems;
 }
 
+bool Util::FileExists(const std::string& name) {
+  struct stat buffer;   
+  return (stat (name.c_str(), &buffer) == 0); 
+}
+
+
 /*
 std::vector<std::string> Split(std::string str,std::string sep) {
   char* cstr=const_cast<char*>(str.c_str());

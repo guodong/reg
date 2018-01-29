@@ -25,6 +25,10 @@ std::vector<std::string> Split(const std::string &s, char delim);
 
 int Download(const std::string &url, const std::string &dst);
 void Extract(const char *filename);
+class Util {
+ public:
+  static bool FileExists(const std::string &file);
+};
 
 }
 

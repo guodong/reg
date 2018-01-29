@@ -9,56 +9,56 @@
 #include "generator.h"
 #include "runtime_env.h"
 
-
 int main(int argc, char* argv[]) {
 
   try {
 
     TCLAP::CmdLine cmd("REG - Runtime Environment Generator", ' ', "0.0.1");
 
-    TCLAP::UnlabeledValueArg<std::string> command("command", "reg commands", true, "", "install, run, stop, start", cmd);
+    TCLAP::UnlabeledValueArg<std::string> action_("action", "reg actions", true, "", "generate, remove, start, stop, install, uninstall", cmd);
 
-    TCLAP::ValueArg<std::string> cmdArg("c", "cmdarg", "command to execute", false, "/bin/bash", "string");
+    TCLAP::SwitchArg parallel_("p", "parallel", "execute command simultaneously", false);
+    cmd.add(parallel_);
 
-    TCLAP::ValueArg<std::string> retArg("t", "retarg", "ret", true, "", "string");
+    TCLAP::ValueArg<std::string> envroot_("d", "envdir", "env root dir", false, ".env", "string");
 
-    cmd.add(cmdArg);
-    cmd.add(retArg);
+    TCLAP::UnlabeledMultiArg<std::string> params_("params", "reg params", false, "string");
+    cmd.add(params_);
 
     cmd.parse(argc, argv);
 
-    std::cout << command.getValue();
+    std::vector<std::string> params = params_.getValue();
 
-    std::string cmdarg = cmdArg.getValue();
-    std::string retarg = retArg.getValue();
-    std::cout << retarg;
-
-    std::vector<std::string> retv = reg::Split(retarg, '@');
-
-    std::string ret = retv[0];
-    std::string version;
-
-    if (retv.size() == 1) {
-      version = "latest";
-    } else {
-      // ret releases name format is name-v(x.x.x)-x86[_64]
-      version = "v" + retv[1];
-    }
-    
-
-    if (command.getValue() == "run") {
+    // eg. sudo reg generate python
+    if (action_.getValue() == "generate") {
+      if (params.size() == 0) {
+        std::cout << "no templates specified!" << std::endl;
+      }
       
       int res;
-      reg::RuntimeEnv *re = new reg::RuntimeEnv();
-      
       reg::Generator gen;
-      res = gen.generate(ret, version, re);
-      if (res != 0) {
+      gen.set_envroot(envdir_.getValue());
+
+      reg::Env *env = new Env();
+
+      env.set_root(envroot_.getValue());
+      
+      
+      reg::Env *env = gen.Generate(params);
+      if (!env) {
         std::cout << "gen err" << std::endl;
         return -1;
       }
 
-      //re->Start();
+    } else if (action_.getValue() == "start") {
+      if (params.size() == 0) {
+        std::cout << "no commands specified!" << std::endl;
+      }
+      
+      reg::RuntimeEnv* re = new reg::RuntimeEnv();
+      re->set_cmds(params);
+      re->set_parallel(parallel_.getValue());
+      re->Start();
     }
     
     

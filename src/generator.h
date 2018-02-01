@@ -8,7 +8,6 @@
 namespace reg {
 class Generator {
  public:
-  Generator();
   
   // Example: generate("python@3.5.2", re)
   Env* Generate(const std::string& ret);
@@ -20,6 +19,10 @@ class Generator {
 
  private:
   int Init();
+  Env* FetchEnv(const std::string &env_name);
+  std::vector<std::string> GetDependencyDirs(Env *env);
+  int MakeFs(Env *env);
+  int Gendirs();
 
   std::string envroot_;
 

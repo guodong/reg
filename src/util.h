@@ -30,6 +30,9 @@ class Util {
   static bool FileExists(const std::string &file);
 };
 
+namespace util {
+std::string ArchString();
+}
 }
 
 #endif

@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     TCLAP::SwitchArg parallel_("p", "parallel", "execute command simultaneously", false);
     cmd.add(parallel_);
 
-    TCLAP::ValueArg<std::string> envroot_("d", "envdir", "env root dir", false, ".env", "string");
+    TCLAP::ValueArg<std::string> envroot_("d", "envroot", "env root dir", false, ".env", "string");
 
     TCLAP::UnlabeledMultiArg<std::string> params_("params", "reg params", false, "string");
     cmd.add(params_);
@@ -37,12 +37,8 @@ int main(int argc, char* argv[]) {
       
       int res;
       reg::Generator gen;
-      gen.set_envroot(envdir_.getValue());
+      gen.set_envroot(envroot_.getValue());
 
-      reg::Env *env = new Env();
-
-      env.set_root(envroot_.getValue());
-      
       
       reg::Env *env = gen.Generate(params);
       if (!env) {
@@ -54,11 +50,12 @@ int main(int argc, char* argv[]) {
       if (params.size() == 0) {
         std::cout << "no commands specified!" << std::endl;
       }
-      
-      reg::RuntimeEnv* re = new reg::RuntimeEnv();
-      re->set_cmds(params);
-      re->set_parallel(parallel_.getValue());
-      re->Start();
+
+      reg::Env *env = new reg::Env();
+      env->set_root(envroot_.getValue());
+      env->set_cmds(params);
+      env->set_parallel(parallel_.getValue());
+      env->Start();
     }
     
     

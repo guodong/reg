@@ -69,7 +69,7 @@ int Env::Start() {
   mount("./", (mount_dir() + "/src").c_str(), "bind", MS_BIND, NULL);
   
   child_pid_ = clone(Child, child_stack_ + 8192, CLONE_NEWPID | CLONE_NEWNS | CLONE_NEWIPC | SIGCHLD, this);
-  //waitpid(child_pid_, NULL, 0);
+  waitpid(child_pid_, NULL, 0);
   
   return 0;
 }

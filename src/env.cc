@@ -4,7 +4,9 @@
 #include <sys/syscall.h>
 #include <sys/stat.h>
 #include <sys/mount.h>
+#include <stdlib.h>
 #include <string.h>
+#include <errno.h>  
 #include <iostream>
 
 namespace reg {
@@ -30,19 +32,15 @@ int Env::AddDependency(reg::Env *env) {
 }
 
 //static void signal_handler(int s) {
-
 //}
 
 int Env::Child(void *data) {
   Env *re = (Env*)data;
   int result;
-
   //syscall(SYS_unshare, CLONE_NEWNS);
   //mount("proc", "/proc", "proc", 0, NULL);
-
   // this may lead to host system issue
   //mount("none", "/dev", "tmpfs", MS_NOEXEC | MS_STRICTATIME, NULL);
-
   result = chroot(re->mount_dir().c_str());
   if (result != 0) {
     std::cout << "change root error " << strerror(errno) << std::endl;
@@ -61,6 +59,29 @@ int Env::Child(void *data) {
   }
   
   return 0;
+}
+
+int Env::Remove(){
+   
+  if(umount((mount_dir()+"/src").c_str())!=0){
+    std::cout<<"umount"+mount_dir()+"/src"+" error,"<<strerror(errno)<<std::endl;
+    //return -1;
+  } 
+  if(umount(mount_dir().c_str())!=0){
+    std::cout<<"umount"+mount_dir()+" error,"<<strerror(errno)<<std::endl;
+    //return -1;
+  }
+
+  /*if (rmdir("./.env") != 0) {
+    std::cout<<"remove  .env error,"<<strerror(errno)<<std::endl;
+    return -1;
+  }*/
+  if(system("rm -rf  .env")!=0){
+    std::cout<<"remove  .env error,"<<strerror(errno)<<std::endl;
+    return -1;
+  }
+    std::cout<<"remove"+ mount_dir()+" success"<<std::endl;
+    return 0;
 }
 
 int Env::Start() {

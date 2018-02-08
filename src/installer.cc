@@ -38,7 +38,7 @@ int Installer::InstallBin(std::string name, std::string version) {
     newName = "./lib/" + itx->first.as<string>() + ".so." + itx->second.as<string>();
 
     fstream _file;
-    _file.open(newName, ios::in);
+    _file.open(newName.c_str(), ios::in);
     if (!_file) {
       result = link(oldName.c_str(), newName.c_str());
       if (result != 0) {

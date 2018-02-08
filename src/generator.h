@@ -23,6 +23,7 @@ class Generator {
   std::vector<std::string> GetDependencyDirs(Env *env);
   int MakeFs(Env *env);
   int Gendirs();
+  int Deldirs();
 
   std::string envroot_;
 

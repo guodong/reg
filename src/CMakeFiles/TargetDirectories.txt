@@ -1,0 +1,7 @@
+/home/docker/reg/src/CMakeFiles/install.dir
+/home/docker/reg/src/CMakeFiles/list_install_components.dir
+/home/docker/reg/src/CMakeFiles/rebuild_cache.dir
+/home/docker/reg/src/CMakeFiles/reg.dir
+/home/docker/reg/src/CMakeFiles/install/strip.dir
+/home/docker/reg/src/CMakeFiles/install/local.dir
+/home/docker/reg/src/CMakeFiles/edit_cache.dir

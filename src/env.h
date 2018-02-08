@@ -11,6 +11,8 @@ class Env {
 
   int Start();
 
+  int Remove();
+
   void set_root(const std::string root) { root_ = root; }
   std::string root() { return root_; }
 

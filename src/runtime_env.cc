@@ -4,11 +4,13 @@
 #include <sys/syscall.h>
 #include <sys/stat.h>
 #include <sys/mount.h>
+#include <errno.h>  
 #include <fstream>
 #include <iostream>
 #include <cstring>
 #include <yaml-cpp/yaml.h>
 
+extern int errno;  
 namespace reg {
 
 RuntimeEnv::RuntimeEnv() {
@@ -38,7 +40,7 @@ int RuntimeEnv::InstallBin(const std::string name, const std::string version) {
     std::cout << oldName << std::endl;
     
     std::fstream _file;
-    _file.open(newName, std::ios::in);
+    _file.open(newName.c_str(), std::ios::in);
     if (!_file) {
       result = link(oldName.c_str(), newName.c_str());
       if (result != 0) {
@@ -65,7 +67,6 @@ int RuntimeEnv::InstallBin(const std::string name, const std::string version) {
 int RuntimeEnv::Child(void *data) {
   RuntimeEnv *re = (RuntimeEnv*)data;
   int result;
-
 
   //mount("proc", "/proc", "proc", 0, NULL);
   //mount("none", "/dev", "tmpfs", MS_NOEXEC | MS_STRICTATIME, NULL);

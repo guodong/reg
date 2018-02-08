@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <uuid/uuid.h>
+#include <dirent.h>     
 #include <yaml-cpp/yaml.h>
 #include <curl/curl.h>
 #include "configuration.h"
@@ -50,6 +51,32 @@ int Generator::Gendirs() {
 err:
   std::cout << "err to create envroot" << std::endl;
   return -1;
+}
+
+int Generator::Deldirs(){
+ 
+ if (access(envroot_.c_str(), 0) == 0)  
+  {  
+      //cout<<dir<<" exists"<<endl;  
+      //cout<<"now delete it"<<endl;
+    if(rmdir((envroot_+"/upper").c_str())!=0){
+      goto err;
+    }
+    if(rmdir((envroot_+"/work").c_str())!=0){
+      goto err;
+    }
+    if(rmdir((envroot_+"/mount").c_str())!=0){
+      goto err;
+    }
+      return 0;
+  } else{
+    std::cout << "no envroot dir to delete" << std::endl;
+    return -1;
+  }
+  err:
+  std::cout << "err to remove envroot dir" << std::endl;
+  return -1;
+
 }
 
 int Generator::Init() {

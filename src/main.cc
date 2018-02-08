@@ -39,7 +39,6 @@ int main(int argc, char* argv[]) {
       reg::Generator gen;
       gen.set_envroot(envroot_.getValue());
 
-      
       reg::Env *env = gen.Generate(params);
       if (!env) {
         std::cout << "gen err" << std::endl;
@@ -56,7 +55,16 @@ int main(int argc, char* argv[]) {
       env->set_cmds(params);
       env->set_parallel(parallel_.getValue());
       env->Start();
+    }else if(action_.getValue() == "remove"){
+      int res;
+      reg::Env *env = new reg::Env();
+      env->set_root(envroot_.getValue());
+      //env->set_cmds(params);
+      //env->set_parallel(parallel_.getValue());
+      env->Remove();
+
     }
+      
     
     
   } catch (TCLAP::ArgException &e) {
